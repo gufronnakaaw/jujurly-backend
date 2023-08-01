@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts",
     "build": "npx tsc",
-    "test": "jest -i"
+    "test": "jest -i",
+    "test:user": "jest -i --testPathPattern='src/tests/user.test.ts'"
   },
   "keywords": [],
   "author": "",
