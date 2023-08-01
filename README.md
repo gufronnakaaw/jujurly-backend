@@ -1,9 +1,7 @@
 ## 🎯 Goals
 
 - Users API
-- Candidates API
 - Rooms API
-- Votes API
 
 ## 👥 Contributors
 
