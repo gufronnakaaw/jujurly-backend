@@ -165,14 +165,19 @@ Status Code : 200
     "start": 1690776168631,
     "end": 1690776168631,
     "code": "BGHIWAXL",
+    "total_votes": 4,
     "candidates": [
       {
+        "id": 1,
         "name": "Candidate 1",
-        "percentage": 75
+        "percentage": 75,
+        "vote_count": 3
       },
       {
+        "id": 2,
         "name": "Candidate 2",
-        "percentage": 25
+        "percentage": 25,
+        "vote_count": 1
       }
     ]
   }
