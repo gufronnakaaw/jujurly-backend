@@ -112,7 +112,7 @@ Status Code : 200
       "code": "HGUYBVXZ"
     },
     {
-      "id": 1,
+      "id": 3,
       "name": "Pemilihan Ketua Partai Nasdem",
       "start": 1690776168631,
       "end": 1690776168631,
@@ -264,7 +264,7 @@ Request Body :
 
 ```json
 {
-  "id": 1,
+  "room_id": 1,
   "name": "Update Room Test",
   "start": 1690776168631,
   "end": 1690776168631,
@@ -344,7 +344,7 @@ Request Body :
 
 ```json
 {
-  "id": 1,
+  "room_id": 1,
   "code": "HJBGWTYU"
 }
 ```
@@ -408,7 +408,7 @@ Status Code : 201
 {
   "success": true,
   "data": {
-    "message": "Vote success"
+    "message": "Vote candidate successfully"
   }
 }
 ```
