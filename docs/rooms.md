@@ -376,3 +376,54 @@ Status Code : 404
   ]
 }
 ```
+
+## Create Votes API
+
+Endpoint : /api/v1/rooms/votes
+<br />
+Method : POST
+<br />
+Headers :
+
+- Authorization : Bearer (token)
+  <br />
+
+Request Body :
+
+```json
+{
+  "room_id": 1,
+  "code": "CHVBFUTY",
+  "candidate": {
+    "id": 2
+  }
+}
+```
+
+Response Body Success :
+<br />
+Status Code : 201
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Vote success"
+  }
+}
+```
+
+Response Body Error :
+<br />
+Status Code : 401
+
+```json
+{
+  "success": false,
+  "errors": [
+    {
+      "message": "Unauthorized"
+    }
+  ]
+}
+```
