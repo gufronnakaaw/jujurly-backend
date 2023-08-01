@@ -9,3 +9,58 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            Int         @id @default(autoincrement())
+  email         String      @db.VarChar(255)
+  fullname      String      @db.VarChar(255)
+  password      String      @db.VarChar(255)
+  created_at    DateTime    @default(now())
+
+  rooms         Room[]
+  votes         Vote[]     
+
+  @@map("users")
+}
+
+model Room {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(255)
+  start         BigInt      @db.UnsignedBigInt
+  end           BigInt      @db.UnsignedBigInt
+  code          String      @db.VarChar(10)
+  user_id       Int     
+  created_at    DateTime    @default(now())
+
+  user          User        @relation(fields: [user_id], references: [id])
+  candidate     Candidate[]
+  votes         Vote[]
+
+  @@map("rooms")
+}
+
+model Candidate {
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(255)
+  room_id       Int
+  created_at    DateTime    @default(now())
+
+  rooms         Room        @relation(fields: [room_id], references: [id])
+  votes         Vote[]
+
+  @@map("candidates")
+}
+
+model Vote {
+  id            Int         @id @default(autoincrement())
+  user_id       Int
+  room_id       Int
+  candidate_id  Int
+  created_at    DateTime    @default(now())
+
+  user          User        @relation(fields: [user_id], references: [id])
+  room          Room        @relation(fields: [room_id], references: [id])
+  candidate     Candidate   @relation(fields: [candidate_id], references: [id])
+
+  @@map("votes")
+}
