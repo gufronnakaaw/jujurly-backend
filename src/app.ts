@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import logger from './utils/logger';
 import server from './http/server';
+import prisma from './utils/database';
 
 config();
 
@@ -9,6 +10,7 @@ async function app() {
   const fastifyServer = server();
 
   try {
+    await prisma.$connect();
     await fastifyServer.listen({ port });
     logger.info(`server is running at http://localhost:${port}`);
   } catch (error) {
