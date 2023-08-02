@@ -6,4 +6,9 @@ const RegisterValidation = z.object({
   password: z.string().min(1).max(255),
 });
 
-export { RegisterValidation };
+const LoginValidation = z.object({
+  email: z.string().email().min(1).max(255).trim(),
+  password: z.string().min(1).max(255),
+});
+
+export { RegisterValidation, LoginValidation };
