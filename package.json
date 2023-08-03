@@ -10,7 +10,8 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/app.ts",
     "build": "npx tsc",
     "test": "jest -i",
-    "test:user": "jest -i --testPathPattern='src/tests/user.test.ts'"
+    "test:user": "jest -i --testPathPattern='src/tests/user.test.ts'",
+    "test:room": "jest -i --testPathPattern='src/tests/room.test.ts'"
   },
   "keywords": [],
   "author": "",
