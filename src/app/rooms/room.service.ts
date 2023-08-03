@@ -1,6 +1,7 @@
 import prisma from '../../utils/database';
 import generate from '../../utils/generate';
 import validate from '../../utils/validate';
+import { RoomEntity } from './room.entity';
 import { CreateRoomsBody } from './room.types';
 import { createRoomsValidation } from './room.validation';
 
@@ -10,13 +11,17 @@ async function create(body: CreateRoomsBody, userId: number) {
     body
   );
 
-  const room = await prisma.room.create({
+  const room: RoomEntity = {
+    name,
+    start,
+    end,
+    user_id: userId,
+    code: generate(8),
+  };
+
+  const create = await prisma.room.create({
     data: {
-      name,
-      start,
-      end,
-      user_id: userId,
-      code: generate(8),
+      ...room,
       candidate: {
         createMany: {
           data: candidates,
@@ -25,12 +30,11 @@ async function create(body: CreateRoomsBody, userId: number) {
     },
     select: {
       id: true,
-      code: true,
     },
   });
 
   return {
-    id: room.id,
+    id: create.id,
     name,
     start,
     end,
