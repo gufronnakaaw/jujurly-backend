@@ -1,9 +1,13 @@
+import ResponseError from '../../error/ResponseError';
 import prisma from '../../utils/database';
 import generate from '../../utils/generate';
 import validate from '../../utils/validate';
 import { RoomEntity } from './room.entity';
-import { CreateRoomsBody } from './room.types';
-import { createRoomsValidation } from './room.validation';
+import { CreateRoomsBody, DeleteRoomsBody } from './room.types';
+import {
+  createRoomsValidation,
+  deleteRoomsValidation,
+} from './room.validation';
 
 async function create(body: CreateRoomsBody, userId: number) {
   const { name, start, end, candidates } = validate(
@@ -43,4 +47,42 @@ async function create(body: CreateRoomsBody, userId: number) {
   };
 }
 
-export { create };
+async function remove(body: DeleteRoomsBody, userId: number) {
+  const { room_id, code } = validate(deleteRoomsValidation, body);
+
+  const room = await prisma.room.findFirst({
+    where: {
+      AND: [{ id: room_id }, { code }, { user_id: userId }],
+    },
+  });
+
+  if (!room) {
+    throw new ResponseError(404, 'Room not found');
+  }
+
+  await prisma.$transaction([
+    prisma.candidate.deleteMany({
+      where: {
+        room_id,
+      },
+    }),
+
+    prisma.room.deleteMany({
+      where: {
+        AND: [
+          {
+            id: room_id,
+          },
+          {
+            code,
+          },
+          {
+            user_id: userId,
+          },
+        ],
+      },
+    }),
+  ]);
+}
+
+export { create, remove };

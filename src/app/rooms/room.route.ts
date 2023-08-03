@@ -1,7 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import AuthHandler from '../../handlers/AuthHandler';
-import { CreateRoomsBody } from './room.types';
-import { create } from './room.service';
+import { CreateRoomsBody, DeleteRoomsBody } from './room.types';
+import { create, remove } from './room.service';
 
 export default async function routes(fastify: FastifyInstance) {
   fastify.addHook('onRequest', AuthHandler);
@@ -21,6 +21,30 @@ export default async function routes(fastify: FastifyInstance) {
         return rep.code(201).send({
           success: true,
           data,
+        });
+      } catch (error) {
+        rep.send(error);
+      }
+    }
+  );
+
+  fastify.delete(
+    '/',
+    async (
+      req: FastifyRequest<{
+        Body: DeleteRoomsBody;
+      }>,
+      rep: FastifyReply
+    ) => {
+      try {
+        const { id } = req.user as { id: number };
+        await remove(req.body, id);
+
+        return rep.code(200).send({
+          success: true,
+          data: {
+            message: 'Delete room successfully',
+          },
         });
       } catch (error) {
         rep.send(error);
