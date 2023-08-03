@@ -18,3 +18,11 @@ export async function createUsers() {
     },
   });
 }
+
+export async function getUsers() {
+  return prisma.user.findFirst({
+    where: {
+      email: 'testing@mail.com',
+    },
+  });
+}
