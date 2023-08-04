@@ -85,4 +85,19 @@ async function remove(body: DeleteRoomsBody, userId: number) {
   ]);
 }
 
-export { create, remove };
+async function getAll(userId: number) {
+  return prisma.room.findMany({
+    where: {
+      user_id: userId,
+    },
+    select: {
+      id: true,
+      name: true,
+      start: true,
+      end: true,
+      code: true,
+    },
+  });
+}
+
+export { create, remove, getAll };

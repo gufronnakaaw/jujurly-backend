@@ -1,7 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import AuthHandler from '../../handlers/AuthHandler';
-import { CreateRoomsBody, DeleteRoomsBody } from './room.types';
-import { create, remove } from './room.service';
+import { CreateRoomsBody, DeleteRoomsBody, GetRoomsQuery } from './room.types';
+import { create, remove, getAll } from './room.service';
+import { getAllSchema } from './room.schema';
 
 export default async function routes(fastify: FastifyInstance) {
   fastify.addHook('onRequest', AuthHandler);
@@ -46,6 +47,44 @@ export default async function routes(fastify: FastifyInstance) {
             message: 'Delete room successfully',
           },
         });
+      } catch (error) {
+        rep.send(error);
+      }
+    }
+  );
+
+  fastify.get(
+    '/',
+    async (
+      req: FastifyRequest<{
+        Querystring: GetRoomsQuery;
+      }>,
+      rep: FastifyReply
+    ) => {
+      try {
+        const { id: userId } = req.user as { id: number };
+        const { id, code } = req.query;
+
+        if (id) {
+          // soon
+        }
+
+        if (code) {
+          // soon
+        }
+
+        const response = rep.serializeInput(
+          {
+            success: true,
+            data: await getAll(userId),
+          },
+          getAllSchema
+        );
+
+        return rep
+          .code(200)
+          .header('content-type', 'application/json')
+          .send(response);
       } catch (error) {
         rep.send(error);
       }

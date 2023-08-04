@@ -18,4 +18,9 @@ const deleteRoomsValidation = z.object({
   code: z.string().min(8),
 });
 
-export { createRoomsValidation, deleteRoomsValidation };
+const getRoomsValidation = z.object({
+  id: z.number().positive().optional(),
+  code: z.string().min(8).optional(),
+});
+
+export { createRoomsValidation, deleteRoomsValidation, getRoomsValidation };
