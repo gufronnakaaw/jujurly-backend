@@ -57,3 +57,45 @@ export async function createRooms() {
     },
   });
 }
+
+export async function createManyRooms() {
+  const user = await getUsers();
+
+  for (let i = 1; i <= 5; i++) {
+    await prisma.room.create({
+      data: {
+        name: `Create Room Test ${i}`,
+        start: 1690776168631,
+        end: 1690776168631,
+        code: generate(8),
+        user_id: user!.id,
+        candidate: {
+          createMany: {
+            data: [
+              {
+                name: 'Candidate Test 1',
+              },
+              {
+                name: 'Candidate Test 2',
+              },
+            ],
+          },
+        },
+      },
+    });
+  }
+}
+
+export async function deleteManyRooms() {
+  for (let i = 1; i <= 5; i++) {
+    const room = await getRooms();
+
+    await deleteCandidates();
+
+    await prisma.room.deleteMany({
+      where: {
+        id: room?.id,
+      },
+    });
+  }
+}

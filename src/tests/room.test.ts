@@ -11,8 +11,10 @@ import logger from '../utils/logger';
 import server from '../http/server';
 import { createUsers, removeUsers } from './utils/user.util';
 import {
+  createManyRooms,
   createRooms,
   deleteCandidates,
+  deleteManyRooms,
   deleteRooms,
   getRooms,
 } from './utils/room.util';
@@ -300,6 +302,89 @@ describe('DELETE /api/v1/rooms', () => {
         room_id: room?.id,
         code: room?.code,
       },
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+});
+
+describe('GET /api/v1/rooms', () => {
+  beforeAll(async () => {
+    await createUsers();
+    await createManyRooms();
+  });
+
+  afterAll(async () => {
+    await deleteManyRooms();
+    await removeUsers();
+  });
+
+  it('should can get rooms', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+
+    const response = await fastifyServer.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('data');
+
+    expect(response.json().success).toBeTruthy();
+    expect(response.json().data.length).toBe(5);
+    expect(response.json().data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: expect.any(Number),
+          name: expect.any(String),
+          start: expect.any(Number),
+          end: expect.any(Number),
+          code: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should return empty array when the user has no rooms', async () => {
+    const fastifyServer = server();
+
+    const response = await fastifyServer.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
+      headers: {
+        authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTUsImZ1bGxuYW1lIjoiVW5pdCBUZXN0IiwiaWF0IjoxNjkxMTE3NzI1LCJleHAiOjE2OTExMjEzMjV9.AK96Rke83IjgvOWn31eyoa1YlKwrp2p7dwJLLGVjDZk`,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('data');
+
+    expect(response.json().success).toBeTruthy();
+    expect(response.json().data.length).toBe(0);
+  });
+
+  it('should unauthorized', async () => {
+    const fastifyServer = server();
+    const response = await fastifyServer.inject({
+      method: 'GET',
+      url: '/api/v1/rooms',
     });
 
     expect(response.statusCode).toBe(401);
