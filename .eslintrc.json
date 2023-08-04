@@ -26,6 +26,7 @@
     "consistent-return": "off",
     "prefer-default-export": "off",
     "no-shadow": "off",
-    "import/prefer-default-export": "off"
+    "import/prefer-default-export": "off",
+    "camelcase": "off"
   }
 }
