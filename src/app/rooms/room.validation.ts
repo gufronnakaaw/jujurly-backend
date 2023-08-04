@@ -20,7 +20,7 @@ const deleteRoomsValidation = z.object({
 
 const getRoomsValidation = z.object({
   id: z.number().positive().optional(),
-  code: z.string().min(8).optional(),
+  code: z.string().max(8).optional(),
 });
 
 export { createRoomsValidation, deleteRoomsValidation, getRoomsValidation };

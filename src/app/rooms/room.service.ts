@@ -3,10 +3,15 @@ import prisma from '../../utils/database';
 import generate from '../../utils/generate';
 import validate from '../../utils/validate';
 import { RoomEntity } from './room.entity';
-import { CreateRoomsBody, DeleteRoomsBody } from './room.types';
+import {
+  CreateRoomsBody,
+  DeleteRoomsBody,
+  GetRoomsRawQuery,
+} from './room.types';
 import {
   createRoomsValidation,
   deleteRoomsValidation,
+  getRoomsValidation,
 } from './room.validation';
 
 async function create(body: CreateRoomsBody, userId: number) {
@@ -100,4 +105,70 @@ async function getAll(userId: number) {
   });
 }
 
-export { create, remove, getAll };
+async function getByCode(code: string, userId: number) {
+  const valid = validate(getRoomsValidation, { code });
+
+  const room = await prisma.room.findFirst({
+    where: {
+      AND: [
+        {
+          code: valid.code,
+        },
+        {
+          user_id: userId,
+        },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      start: true,
+      end: true,
+      code: true,
+    },
+  });
+
+  if (Date.now() < room!.start) {
+    throw new ResponseError(202, 'Voting has not started');
+  }
+
+  const [votes, total_votes]: any[] = await prisma.$transaction([
+    prisma.$queryRaw`SELECT c.id, c.name, COUNT(v.id) AS vote_count,
+    (ROUND(COUNT(v.id) * 100 / (SELECT COUNT(id) FROM votes WHERE room_id = ${
+      room!.id
+    }), 2)) as percentage
+        FROM candidates c
+        LEFT JOIN votes v ON c.id = v.candidate_id
+      WHERE c.room_id = ${room!.id}
+    GROUP BY c.id, c.name;`,
+
+    prisma.vote.count({
+      where: {
+        AND: [
+          {
+            room_id: room!.id,
+          },
+        ],
+      },
+    }),
+  ]);
+
+  const candidates = votes.map(
+    ({ id, name, vote_count, percentage }: GetRoomsRawQuery) => {
+      return {
+        id,
+        name,
+        percentage: !percentage ? 0 : percentage,
+        vote_count: Number(vote_count),
+      };
+    }
+  );
+
+  return {
+    ...room,
+    total_votes,
+    candidates,
+  };
+}
+
+export { create, remove, getAll, getByCode };
