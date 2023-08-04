@@ -363,12 +363,20 @@ describe('GET /api/v1/rooms', () => {
 
   it('should return empty array when the user has no rooms', async () => {
     const fastifyServer = server();
+    const login = await fastifyServer.inject({
+      method: 'POST',
+      url: '/api/v1/users/login',
+      payload: {
+        email: 'unittest@mail.com',
+        password: 'unittest123',
+      },
+    });
 
     const response = await fastifyServer.inject({
       method: 'GET',
       url: '/api/v1/rooms',
       headers: {
-        authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTUsImZ1bGxuYW1lIjoiVW5pdCBUZXN0IiwiaWF0IjoxNjkxMTE3NzI1LCJleHAiOjE2OTExMjEzMjV9.AK96Rke83IjgvOWn31eyoa1YlKwrp2p7dwJLLGVjDZk`,
+        authorization: `Bearer ${login.json().data.token}`,
       },
     });
 

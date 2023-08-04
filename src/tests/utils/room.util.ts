@@ -25,11 +25,13 @@ export async function getRooms() {
 export async function deleteCandidates() {
   const room = await getRooms();
 
-  await prisma.candidate.deleteMany({
-    where: {
-      room_id: room?.id,
-    },
-  });
+  if (room) {
+    await prisma.candidate.deleteMany({
+      where: {
+        room_id: room?.id,
+      },
+    });
+  }
 }
 
 export async function createRooms() {
