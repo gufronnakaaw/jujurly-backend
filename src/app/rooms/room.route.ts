@@ -5,6 +5,7 @@ import {
   DeleteRoomsBody,
   GetRoomsQuery,
   CreateVotesBody,
+  UpdateRoomsBody,
 } from './room.types';
 import {
   create,
@@ -13,11 +14,13 @@ import {
   getByCode,
   getById,
   votes,
+  update,
 } from './room.service';
 import {
   getAllSchema,
   getRoomsByCodeSchema,
   getRoomsByIdSchema,
+  updateRoomsSchema,
 } from './room.schema';
 
 export default async function routes(fastify: FastifyInstance) {
@@ -148,6 +151,35 @@ export default async function routes(fastify: FastifyInstance) {
             message: 'Vote candidate successfully',
           },
         });
+      } catch (error) {
+        rep.send(error);
+      }
+    }
+  );
+
+  fastify.patch(
+    '/',
+    async (
+      req: FastifyRequest<{
+        Body: UpdateRoomsBody;
+      }>,
+      rep: FastifyReply
+    ) => {
+      try {
+        const { id } = req.user as { id: number };
+
+        const response = rep.serializeInput(
+          {
+            success: true,
+            data: await update(req.body, id),
+          },
+          updateRoomsSchema
+        );
+
+        return rep
+          .code(200)
+          .header('content-type', 'application/json')
+          .send(response);
       } catch (error) {
         rep.send(error);
       }

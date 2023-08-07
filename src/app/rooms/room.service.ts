@@ -8,12 +8,14 @@ import {
   CreateVotesBody,
   DeleteRoomsBody,
   GetRoomsRawQuery,
+  UpdateRoomsBody,
 } from './room.types';
 import {
   createRoomsValidation,
   createVotesValidation,
   deleteRoomsValidation,
   getRoomsValidation,
+  updateRoomsValidation,
 } from './room.validation';
 
 async function create(body: CreateRoomsBody, userId: number) {
@@ -270,4 +272,88 @@ async function votes(body: CreateVotesBody, userId: number) {
   });
 }
 
-export { create, remove, getAll, getByCode, getById, votes };
+async function update(body: UpdateRoomsBody, userId: number) {
+  const { room_id, name, start, end, candidates } = validate(
+    updateRoomsValidation,
+    body
+  );
+
+  const room = await prisma.room.findFirst({
+    where: {
+      AND: [
+        {
+          id: room_id,
+        },
+        {
+          user_id: userId,
+        },
+      ],
+    },
+  });
+
+  if (!room) {
+    throw new ResponseError(404, 'Room not found');
+  }
+
+  await prisma.room.update({
+    where: {
+      id: room_id,
+    },
+    data: {
+      name,
+      start,
+      end,
+    },
+  });
+
+  if (candidates) {
+    const all = candidates.map((candidate) => {
+      return prisma.candidate.updateMany({
+        where: {
+          AND: [
+            {
+              id: candidate.id,
+            },
+            {
+              room_id,
+            },
+          ],
+        },
+        data: {
+          name: candidate.name,
+        },
+      });
+    });
+
+    await Promise.all(all);
+  }
+
+  const update = await prisma.room.findFirst({
+    where: {
+      id: room_id,
+    },
+    select: {
+      id: true,
+      name: true,
+      start: true,
+      end: true,
+      code: true,
+      candidate: {
+        select: {
+          id: true,
+          name: true,
+        },
+        where: {
+          room_id,
+        },
+      },
+    },
+  });
+
+  return {
+    ...update,
+    candidates: update!.candidate,
+  };
+}
+
+export { create, remove, getAll, getByCode, getById, votes, update };

@@ -31,9 +31,25 @@ const createVotesValidation = z.object({
   }),
 });
 
+const updateRoomsValidation = z.object({
+  room_id: z.number().positive(),
+  name: z.string().min(1).optional(),
+  start: z.number().positive().optional(),
+  end: z.number().positive().optional(),
+  candidates: z
+    .array(
+      z.object({
+        id: z.number().positive(),
+        name: z.string(),
+      })
+    )
+    .optional(),
+});
+
 export {
   createRoomsValidation,
   deleteRoomsValidation,
   getRoomsValidation,
   createVotesValidation,
+  updateRoomsValidation,
 };

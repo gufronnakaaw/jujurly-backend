@@ -4,6 +4,7 @@ import {
   deleteRoomsValidation,
   getRoomsValidation,
   createVotesValidation,
+  updateRoomsValidation,
 } from './room.validation';
 
 export type CreateRoomsBody = z.infer<typeof createRoomsValidation>;
@@ -18,3 +19,4 @@ export type GetRoomsRawQuery = {
 };
 
 export type CreateVotesBody = z.infer<typeof createVotesValidation>;
+export type UpdateRoomsBody = z.infer<typeof updateRoomsValidation>;
