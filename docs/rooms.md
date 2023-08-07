@@ -229,9 +229,11 @@ Status Code : 200
     "code": "BGHIWAXL",
     "candidates": [
       {
+        "id": 1,
         "name": "Candidate 1"
       },
       {
+        "id": 1,
         "name": "Candidate 2"
       }
     ]
@@ -273,12 +275,13 @@ Request Body :
   "name": "Update Room Test",
   "start": 1690776168631,
   "end": 1690776168631,
-  "code": "BGHIWAXL",
   "candidates": [
     {
+      "id": 1,
       "name": "Update Candidate 1"
     },
     {
+      "id": 1,
       "name": "Update Candidate 2"
     }
   ]
@@ -300,9 +303,11 @@ Status Code : 200
     "code": "HJBGWTYU",
     "candidates": [
       {
+        "id": 1,
         "name": "Update Candidate 1"
       },
       {
+        "id": 1,
         "name": "Update Candidate 2"
       }
     ]
