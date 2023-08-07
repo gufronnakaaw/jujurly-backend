@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import AuthHandler from '../../handlers/AuthHandler';
 import { CreateRoomsBody, DeleteRoomsBody, GetRoomsQuery } from './room.types';
 import { create, remove, getAll, getByCode } from './room.service';
-import { getAllSchema, getByCodeSchema } from './room.schema';
+import { getAllSchema, getRoomsByCodeSchema } from './room.schema';
 
 export default async function routes(fastify: FastifyInstance) {
   fastify.addHook('onRequest', AuthHandler);
@@ -73,10 +73,11 @@ export default async function routes(fastify: FastifyInstance) {
           const response = rep.serializeInput(
             {
               success: true,
-              data: await getByCode(code, userId),
+              data: await getByCode(code),
             },
-            getByCodeSchema
+            getRoomsByCodeSchema
           );
+
           return rep
             .code(200)
             .header('content-type', 'application/json')

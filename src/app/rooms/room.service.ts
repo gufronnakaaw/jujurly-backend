@@ -105,19 +105,12 @@ async function getAll(userId: number) {
   });
 }
 
-async function getByCode(code: string, userId: number) {
+async function getByCode(code: string) {
   const valid = validate(getRoomsValidation, { code });
 
   const room = await prisma.room.findFirst({
     where: {
-      AND: [
-        {
-          code: valid.code,
-        },
-        {
-          user_id: userId,
-        },
-      ],
+      code: valid.code,
     },
     select: {
       id: true,
@@ -127,6 +120,10 @@ async function getByCode(code: string, userId: number) {
       code: true,
     },
   });
+
+  if (!room) {
+    throw new ResponseError(404, 'Room not found');
+  }
 
   if (Date.now() < room!.start) {
     throw new ResponseError(202, 'Voting has not started');
@@ -144,11 +141,7 @@ async function getByCode(code: string, userId: number) {
 
     prisma.vote.count({
       where: {
-        AND: [
-          {
-            room_id: room!.id,
-          },
-        ],
+        room_id: room!.id,
       },
     }),
   ]);

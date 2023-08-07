@@ -18,7 +18,7 @@ export const getAllSchema = {
   },
 };
 
-export const getByCodeSchema = {
+export const getRoomsByCodeSchema = {
   type: 'object',
   properties: {
     success: { type: 'boolean' },
