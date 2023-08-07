@@ -5,11 +5,13 @@ import validate from '../../utils/validate';
 import { RoomEntity } from './room.entity';
 import {
   CreateRoomsBody,
+  CreateVotesBody,
   DeleteRoomsBody,
   GetRoomsRawQuery,
 } from './room.types';
 import {
   createRoomsValidation,
+  createVotesValidation,
   deleteRoomsValidation,
   getRoomsValidation,
 } from './room.validation';
@@ -205,4 +207,67 @@ async function getById(id: number, userId: number) {
   };
 }
 
-export { create, remove, getAll, getByCode, getById };
+async function votes(body: CreateVotesBody, userId: number) {
+  const valid = validate(createVotesValidation, body);
+
+  const room = await prisma.room.count({
+    where: {
+      AND: [
+        {
+          id: valid.room_id,
+        },
+        {
+          code: valid.code,
+        },
+      ],
+    },
+  });
+
+  if (!room) {
+    throw new ResponseError(404, 'Room not found');
+  }
+
+  const candidate = await prisma.candidate.count({
+    where: {
+      AND: [
+        {
+          id: valid.candidate.id,
+        },
+        {
+          room_id: valid.room_id,
+        },
+      ],
+    },
+  });
+
+  if (!candidate) {
+    throw new ResponseError(404, 'Candidate not found');
+  }
+
+  const votes = await prisma.vote.count({
+    where: {
+      AND: [
+        {
+          room_id: valid.room_id,
+        },
+        {
+          user_id: userId,
+        },
+      ],
+    },
+  });
+
+  if (votes > 0) {
+    throw new ResponseError(409, 'You have already participated');
+  }
+
+  await prisma.vote.create({
+    data: {
+      user_id: userId,
+      room_id: valid.room_id,
+      candidate_id: valid.candidate.id,
+    },
+  });
+}
+
+export { create, remove, getAll, getByCode, getById, votes };

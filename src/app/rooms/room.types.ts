@@ -3,6 +3,7 @@ import {
   createRoomsValidation,
   deleteRoomsValidation,
   getRoomsValidation,
+  createVotesValidation,
 } from './room.validation';
 
 export type CreateRoomsBody = z.infer<typeof createRoomsValidation>;
@@ -15,3 +16,5 @@ export type GetRoomsRawQuery = {
   vote_count: number;
   percentage: number;
 };
+
+export type CreateVotesBody = z.infer<typeof createVotesValidation>;

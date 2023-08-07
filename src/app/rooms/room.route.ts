@@ -1,7 +1,19 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import AuthHandler from '../../handlers/AuthHandler';
-import { CreateRoomsBody, DeleteRoomsBody, GetRoomsQuery } from './room.types';
-import { create, remove, getAll, getByCode, getById } from './room.service';
+import {
+  CreateRoomsBody,
+  DeleteRoomsBody,
+  GetRoomsQuery,
+  CreateVotesBody,
+} from './room.types';
+import {
+  create,
+  remove,
+  getAll,
+  getByCode,
+  getById,
+  votes,
+} from './room.service';
 import {
   getAllSchema,
   getRoomsByCodeSchema,
@@ -111,6 +123,31 @@ export default async function routes(fastify: FastifyInstance) {
           .code(200)
           .header('content-type', 'application/json')
           .send(response);
+      } catch (error) {
+        rep.send(error);
+      }
+    }
+  );
+
+  fastify.post(
+    '/votes',
+    async (
+      req: FastifyRequest<{
+        Body: CreateVotesBody;
+      }>,
+      rep: FastifyReply
+    ) => {
+      try {
+        const { id } = req.user as { id: number };
+
+        await votes(req.body, id);
+
+        return rep.code(201).send({
+          success: true,
+          data: {
+            message: 'Vote candidate successfully',
+          },
+        });
       } catch (error) {
         rep.send(error);
       }
