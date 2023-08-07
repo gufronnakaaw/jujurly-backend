@@ -47,3 +47,29 @@ export const getRoomsByCodeSchema = {
     },
   },
 };
+
+export const getRoomsByIdSchema = {
+  type: 'object',
+  properties: {
+    success: { type: 'boolean' },
+    data: {
+      type: 'object',
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        start: { type: 'number' },
+        end: { type: 'number' },
+        code: { type: 'string' },
+        candidates: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  },
+};

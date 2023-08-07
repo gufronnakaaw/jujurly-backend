@@ -164,4 +164,45 @@ async function getByCode(code: string) {
   };
 }
 
-export { create, remove, getAll, getByCode };
+async function getById(id: number, userId: number) {
+  const valid = validate(getRoomsValidation, { id });
+
+  const room = await prisma.room.findFirst({
+    where: {
+      AND: [
+        {
+          id: valid.id,
+        },
+        {
+          user_id: userId,
+        },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      start: true,
+      end: true,
+      code: true,
+      candidate: {
+        select: {
+          name: true,
+        },
+        where: {
+          room_id: valid.id,
+        },
+      },
+    },
+  });
+
+  if (!room) {
+    throw new ResponseError(404, 'Room not found');
+  }
+
+  return {
+    ...room,
+    candidates: room.candidate,
+  };
+}
+
+export { create, remove, getAll, getByCode, getById };
