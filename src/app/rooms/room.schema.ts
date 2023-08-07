@@ -65,6 +65,7 @@ export const getRoomsByIdSchema = {
           items: {
             type: 'object',
             properties: {
+              id: { type: 'number' },
               name: { type: 'string' },
             },
           },

@@ -190,6 +190,7 @@ async function getById(id: number, userId: number) {
       code: true,
       candidate: {
         select: {
+          id: true,
           name: true,
         },
         where: {
