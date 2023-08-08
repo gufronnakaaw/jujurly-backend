@@ -104,3 +104,21 @@ export async function deleteManyRooms() {
     });
   }
 }
+
+export async function deleteVotes() {
+  const room = await getRooms();
+  const user = await getUsers();
+
+  await prisma.vote.deleteMany({
+    where: {
+      AND: [
+        {
+          room_id: room!.id,
+        },
+        {
+          user_id: user?.id,
+        },
+      ],
+    },
+  });
+}

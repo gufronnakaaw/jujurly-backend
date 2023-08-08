@@ -16,6 +16,7 @@ import {
   deleteCandidates,
   deleteManyRooms,
   deleteRooms,
+  deleteVotes,
   getRooms,
 } from './utils/room.util';
 
@@ -707,6 +708,227 @@ describe('PATCH /api/v1/rooms', () => {
     });
 
     expect(response.statusCode).toBe(404);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+});
+
+describe('POST /api/v1/rooms/votes', () => {
+  beforeAll(async () => {
+    await createUsers();
+    await createRooms();
+  });
+
+  afterAll(async () => {
+    await deleteVotes();
+    await deleteCandidates();
+    await deleteRooms();
+    await removeUsers();
+  });
+
+  it('should can votes', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id,
+      code: room!.code,
+      candidate: {
+        id: room!.candidate[0].id,
+      },
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('data');
+
+    expect(response.json().success).toBeTruthy();
+    expect(response.json().data).toEqual(
+      expect.objectContaining({
+        message: expect.any(String),
+      })
+    );
+  });
+
+  it('should cannot votes if user has already participated', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id,
+      code: room!.code,
+      candidate: {
+        id: room!.candidate[0].id,
+      },
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should cannot votes if room not found', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id + 1,
+      code: room!.code,
+      candidate: {
+        id: room!.candidate[0].id,
+      },
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should cannot votes if candidate not found', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id,
+      code: room!.code,
+      candidate: {
+        id: room!.candidate[0].id + 999,
+      },
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should cannot votes if request invalid', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: 'asdhjkashdjkasd',
+      code: room!.code,
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should unauthorized', async () => {
+    const fastifyServer = server();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id,
+      code: room!.code,
+      candidate: {
+        id: room!.candidate[0].id,
+      },
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'POST',
+      url: `/api/v1/rooms/votes`,
+      payload,
+    });
+
+    expect(response.statusCode).toBe(401);
     expect(response.json()).toHaveProperty('success');
     expect(response.json()).toHaveProperty('errors');
 
