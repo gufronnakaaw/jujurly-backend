@@ -19,6 +19,9 @@ export async function getRooms() {
     where: {
       user_id: user?.id,
     },
+    include: {
+      candidate: true,
+    },
   });
 }
 

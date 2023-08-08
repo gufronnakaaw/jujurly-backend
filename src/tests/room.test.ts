@@ -533,3 +533,190 @@ describe('GET BY ID /api/v1/rooms', () => {
     );
   });
 });
+
+describe('PATCH /api/v1/rooms', () => {
+  beforeAll(async () => {
+    await createUsers();
+    await createRooms();
+  });
+
+  afterAll(async () => {
+    await deleteCandidates();
+    await deleteRooms();
+    await removeUsers();
+  });
+
+  it('should can update rooms name', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const payload = {
+      room_id: room!.id,
+      name: 'Update Room Test',
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('data');
+
+    expect(response.json().success).toBeTruthy();
+    expect(response.json().data).toEqual(
+      expect.objectContaining({
+        id: expect.any(Number),
+        name: expect.any(String),
+        start: expect.any(Number),
+        end: expect.any(Number),
+        code: expect.any(String),
+        candidates: expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+          }),
+        ]),
+      })
+    );
+    expect(response.json().data.name).not.toBe(room?.name);
+  });
+
+  it('should can update rooms candidates', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const candidates = room?.candidate.map((element) => {
+      return {
+        id: element.id,
+        name: `Update ${element.name}`,
+      };
+    });
+
+    const payload = {
+      room_id: room!.id,
+      candidates,
+    };
+
+    const response = await fastifyServer.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('data');
+
+    expect(response.json().success).toBeTruthy();
+    expect(response.json().data).toEqual(
+      expect.objectContaining({
+        id: expect.any(Number),
+        name: expect.any(String),
+        start: expect.any(Number),
+        end: expect.any(Number),
+        code: expect.any(String),
+        candidates: expect.arrayContaining([
+          expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+          }),
+        ]),
+      })
+    );
+    expect(response.json().data.candidates).not.toEqual(room?.candidate);
+  });
+
+  it('should unauthorized', async () => {
+    const fastifyServer = server();
+
+    const response = await fastifyServer.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms`,
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should cannot update rooms if request invalid', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+
+    const response = await fastifyServer.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload: {
+        room_id: '12',
+        name: 1234,
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+
+  it('should cannot update rooms if room not found', async () => {
+    const fastifyServer = server();
+    const token = await doLogin();
+    const room = await getRooms();
+
+    const response = await fastifyServer.inject({
+      method: 'PATCH',
+      url: `/api/v1/rooms`,
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+      payload: {
+        room_id: room!.id + 1,
+        name: 'Update Test',
+      },
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toHaveProperty('success');
+    expect(response.json()).toHaveProperty('errors');
+
+    expect(response.json().success).toBeFalsy();
+    expect(response.json().errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: expect.any(String),
+        }),
+      ])
+    );
+  });
+});
