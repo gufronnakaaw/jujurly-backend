@@ -135,9 +135,9 @@ async function getByCode(code: string) {
 
   const [votes, total_votes]: any[] = await prisma.$transaction([
     prisma.$queryRaw`SELECT c.id, c.name, COUNT(v.id) AS vote_count,
-    (ROUND(COUNT(v.id) * 100 / (SELECT COUNT(id) FROM votes WHERE room_id = ${
+    (ROUND(COUNT(v.id) * 100 / NULLIF((SELECT COUNT(id) FROM votes WHERE room_id = ${
       room!.id
-    }), 2)) as percentage
+    }), 0), 2)) as percentage
         FROM candidates c
         LEFT JOIN votes v ON c.id = v.candidate_id
       WHERE c.room_id = ${room!.id}
@@ -309,19 +309,17 @@ async function update(body: UpdateRoomsBody, userId: number) {
 
   if (candidates) {
     const all = candidates.map((candidate) => {
-      return prisma.candidate.updateMany({
+      return prisma.candidate.upsert({
         where: {
-          AND: [
-            {
-              id: candidate.id,
-            },
-            {
-              room_id,
-            },
-          ],
+          id: candidate.id,
+          room_id,
         },
-        data: {
+        update: {
           name: candidate.name,
+        },
+        create: {
+          name: candidate.name,
+          room_id,
         },
       });
     });
