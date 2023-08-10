@@ -309,19 +309,17 @@ async function update(body: UpdateRoomsBody, userId: number) {
 
   if (candidates) {
     const all = candidates.map((candidate) => {
-      return prisma.candidate.updateMany({
+      return prisma.candidate.upsert({
         where: {
-          AND: [
-            {
-              id: candidate.id,
-            },
-            {
-              room_id,
-            },
-          ],
+          id: candidate.id,
+          room_id,
         },
-        data: {
+        update: {
           name: candidate.name,
+        },
+        create: {
+          name: candidate.name,
+          room_id,
         },
       });
     });
