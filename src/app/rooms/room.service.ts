@@ -70,6 +70,12 @@ async function remove(body: DeleteRoomsBody, userId: number) {
   }
 
   await prisma.$transaction([
+    prisma.vote.deleteMany({
+      where: {
+        room_id,
+      },
+    }),
+
     prisma.candidate.deleteMany({
       where: {
         room_id,
