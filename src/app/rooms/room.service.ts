@@ -219,7 +219,7 @@ async function getById(id: number, userId: number) {
 async function votes(body: CreateVotesBody, userId: number) {
   const valid = validate(createVotesValidation, body);
 
-  const room = await prisma.room.count({
+  const room = await prisma.room.findFirst({
     where: {
       AND: [
         {
@@ -251,6 +251,10 @@ async function votes(body: CreateVotesBody, userId: number) {
 
   if (!candidate) {
     throw new ResponseError(404, 'Candidate not found');
+  }
+
+  if (Date.now() > room.end) {
+    throw new ResponseError(202, 'Voting has ended');
   }
 
   const votes = await prisma.vote.count({
