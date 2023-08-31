@@ -112,6 +112,9 @@ async function getAll(userId: number) {
       end: true,
       code: true,
     },
+    orderBy: {
+      created_at: 'asc',
+    },
   });
 }
 
@@ -318,23 +321,35 @@ async function update(body: UpdateRoomsBody, userId: number) {
   });
 
   if (candidates) {
-    const all = candidates.map((candidate) => {
-      return prisma.candidate.upsert({
-        where: {
-          id: candidate.id,
-          room_id,
+    await prisma.room.update({
+      where: {
+        id: room_id,
+      },
+      data: {
+        candidate: {
+          deleteMany: {
+            NOT: candidates.map((candidate) => {
+              return {
+                id: candidate.id,
+              };
+            }),
+          },
+          upsert: candidates.map((candidate) => {
+            return {
+              where: {
+                id: candidate.id,
+              },
+              update: {
+                name: candidate.name,
+              },
+              create: {
+                name: candidate.name,
+              },
+            };
+          }),
         },
-        update: {
-          name: candidate.name,
-        },
-        create: {
-          name: candidate.name,
-          room_id,
-        },
-      });
+      },
     });
-
-    await Promise.all(all);
   }
 
   const update = await prisma.room.findFirst({
