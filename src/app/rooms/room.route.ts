@@ -103,7 +103,7 @@ export default async function routes(fastify: FastifyInstance) {
           const response = rep.serializeInput(
             {
               success: true,
-              data: await getByCode(code),
+              data: await getByCode(code, userId),
             },
             getRoomsByCodeSchema
           );
