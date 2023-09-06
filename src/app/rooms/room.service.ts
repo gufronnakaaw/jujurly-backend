@@ -150,7 +150,8 @@ async function getByCode(code: string, userId: number) {
         FROM candidates c
         LEFT JOIN votes v ON c.id = v.candidate_id
       WHERE c.room_id = ${room!.id}
-    GROUP BY c.id, c.name;`,
+    GROUP BY c.id, c.name 
+    ORDER BY c.id ASC;`,
 
     prisma.vote.count({
       where: {
