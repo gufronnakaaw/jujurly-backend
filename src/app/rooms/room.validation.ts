@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 const createRoomsValidation = z.object({
-  name: z.string().min(1),
+  name: z.string().trim().nonempty(),
   start: z.number().positive(),
   end: z.number().positive(),
   candidates: z
     .array(
       z.object({
-        name: z.string(),
+        name: z.string().trim().nonempty(),
       })
     )
     .min(2),
@@ -15,17 +15,17 @@ const createRoomsValidation = z.object({
 
 const deleteRoomsValidation = z.object({
   room_id: z.number().positive(),
-  code: z.string().min(8),
+  code: z.string().trim().min(8).nonempty(),
 });
 
 const getRoomsValidation = z.object({
   id: z.number().positive().optional(),
-  code: z.string().max(8).optional(),
+  code: z.string().trim().max(8).optional(),
 });
 
 const createVotesValidation = z.object({
   room_id: z.number().positive(),
-  code: z.string().min(8),
+  code: z.string().trim().min(8).nonempty(),
   candidate: z.object({
     id: z.number().positive(),
   }),
@@ -33,14 +33,14 @@ const createVotesValidation = z.object({
 
 const updateRoomsValidation = z.object({
   room_id: z.number().positive(),
-  name: z.string().min(1).optional(),
+  name: z.string().trim().min(1).optional(),
   start: z.number().positive().optional(),
   end: z.number().positive().optional(),
   candidates: z
     .array(
       z.object({
         id: z.number().positive(),
-        name: z.string(),
+        name: z.string().trim().nonempty(),
       })
     )
     .min(2)

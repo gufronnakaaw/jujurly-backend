@@ -7,7 +7,6 @@ import {
   CreateRoomsBody,
   CreateVotesBody,
   DeleteRoomsBody,
-  GetRoomsRawQuery,
   UpdateRoomsBody,
 } from './room.types';
 import {
@@ -169,22 +168,11 @@ async function getByCode(code: string, userId: number) {
     }),
   ]);
 
-  const candidates = votes.map(
-    ({ id, name, vote_count, percentage }: GetRoomsRawQuery) => {
-      return {
-        id,
-        name,
-        percentage: !percentage ? 0 : percentage,
-        vote_count: Number(vote_count),
-      };
-    }
-  );
-
   return {
     ...room,
     total_votes,
     is_available: Boolean(!is_available),
-    candidates,
+    candidates: votes,
   };
 }
 
@@ -265,6 +253,10 @@ async function votes(body: CreateVotesBody, userId: number) {
 
   if (!candidate) {
     throw new ResponseError(404, 'Candidate not found');
+  }
+
+  if (Date.now() < room.start) {
+    throw new ResponseError(202, 'Voting has not started');
   }
 
   if (Date.now() > room.end) {
