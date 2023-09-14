@@ -43,8 +43,8 @@ export async function createRooms() {
   await prisma.room.create({
     data: {
       name: 'Create Room Test',
-      start: 1690776168631,
-      end: 1690776168631,
+      start: Date.now(),
+      end: Date.now() + 7 * 24 * 60 * 60 * 1000,
       code: generate(8),
       user_id: user!.id,
       candidate: {
@@ -70,8 +70,8 @@ export async function createManyRooms() {
     await prisma.room.create({
       data: {
         name: `Create Room Test ${i}`,
-        start: 1690776168631,
-        end: 1690776168631,
+        start: Date.now(),
+        end: Date.now() + 7 * 24 * 60 * 60 * 1000,
         code: generate(8),
         user_id: user!.id,
         candidate: {

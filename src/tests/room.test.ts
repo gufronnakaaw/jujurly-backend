@@ -1001,6 +1001,7 @@ describe('GET BY CODE /api/v1/rooms', () => {
         end: expect.any(Number),
         code: expect.any(String),
         total_votes: expect.any(Number),
+        is_available: expect.any(Boolean),
         candidates: expect.arrayContaining([
           expect.objectContaining({
             id: expect.any(Number),
@@ -1039,65 +1040,6 @@ describe('GET BY CODE /api/v1/rooms', () => {
         }),
       ])
     );
-  });
-
-  it('should cannot get rooms if voting has not started', async () => {
-    const fastifyServer = server();
-    const token = await doLogin();
-
-    const createRoom = await fastifyServer.inject({
-      method: 'POST',
-      url: `/api/v1/rooms`,
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      payload: {
-        name: 'Create Room Test Again',
-        start: Date.now() + 150000000,
-        end: 1690776168631,
-        candidates: [
-          {
-            name: 'Candidate Test 1',
-          },
-          {
-            name: 'Candidate Test 2',
-          },
-        ],
-      },
-    });
-
-    const response = await fastifyServer.inject({
-      method: 'GET',
-      url: `/api/v1/rooms?code=${createRoom.json().data.code}`,
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    });
-
-    expect(response.statusCode).toBe(202);
-    expect(response.json()).toHaveProperty('success');
-    expect(response.json()).toHaveProperty('errors');
-
-    expect(response.json().success).toBeFalsy();
-    expect(response.json().errors).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          message: expect.any(String),
-        }),
-      ])
-    );
-
-    await fastifyServer.inject({
-      method: 'DELETE',
-      url: `/api/v1/rooms`,
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-      payload: {
-        room_id: createRoom.json().data.id,
-        code: createRoom.json().data.code,
-      },
-    });
   });
 
   it('should cannot get rooms if code invalid', async () => {
