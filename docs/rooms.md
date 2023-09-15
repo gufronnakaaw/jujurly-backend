@@ -166,6 +166,7 @@ Status Code : 200
     "end": 1690776168631,
     "code": "BGHIWAXL",
     "total_votes": 4,
+    "is_available": true,
     "candidates": [
       {
         "id": 1,
