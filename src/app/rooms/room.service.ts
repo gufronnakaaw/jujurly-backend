@@ -312,6 +312,10 @@ async function update(body: UpdateRoomsBody, userId: number) {
     throw new ResponseError(404, 'Room not found');
   }
 
+  if (Date.now() > room.start || Date.now() > room.end) {
+    throw new ResponseError(403, 'Forbidden');
+  }
+
   await prisma.room.update({
     where: {
       id: room_id,
