@@ -2,7 +2,7 @@
 
 - [Typescript](https://www.typescriptlang.org)
 - [Fastify](https://fastify.dev)
-- [Supabase PostgreSQL](https://supabase.com/database)
+- [Neon Serverless PostgreSQL](https://neon.tech)
 - [Cyclic](https://www.cyclic.sh)
 
 ## 🎯 Goals
@@ -18,8 +18,3 @@
   - Get Rooms By Id API ✅
   - Update Rooms API ✅
   - Create Votes API ✅
-
-## 👥 Contributors
-
-- [gufronnakaaw](https://github.com/gufronnakaaw) as a back-end developer
-- [fajarfadillahh](https://github.com/fajarfadillahh) as a front-end developer
