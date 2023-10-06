@@ -64,3 +64,39 @@ model Vote {
 
   @@map("votes")
 }
+
+model Admin {
+  id         Int        @id @default(autoincrement())
+  username   String     @db.VarChar(100)
+  fullname   String     @db.VarChar(100)
+  password   String     @db.VarChar(100)
+  email      String     @db.VarChar(100)
+  role       AdminRole?
+  created_at DateTime   @default(now())
+
+  @@map("admin")
+}
+
+model Log {
+  id         Int      @id @default(autoincrement())
+  name       String
+  log_id     String
+  device     String
+  created_at DateTime @default(now())
+
+  @@map("logs")
+}
+
+model Token {
+  id         Int      @id @default(autoincrement())
+  value      String
+  expired    BigInt
+  created_at DateTime @default(now())
+
+  @@map("tokens")
+}
+
+enum AdminRole {
+  SUPER
+  NORMAL
+}
